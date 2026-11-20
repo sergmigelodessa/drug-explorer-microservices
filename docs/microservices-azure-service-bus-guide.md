@@ -2,9 +2,11 @@
 
 ## Provider profile
 
-The local development and test profile uses Qdrant and Ollama. They are local-only and must not be deployed to Azure. The Azure runtime target is Azure AI Search for vector search/indexing and Azure OpenAI Service for embeddings and chat. Implement both provider sets behind the existing application interfaces and select them through environment-specific dependency injection.
+The local development and test profile uses Qdrant and Ollama. They are local-only and must not be deployed to Azure. The Azure runtime target is Azure AI Search for vector search/indexing and Azure OpenAI Service for embeddings and chat. In this repository, the provider-neutral interfaces are `IEmbeddingService`, `IChatCompletionService`, `IVectorStore`, and `IVectorIndexWriter`.
 
-Run tests locally only. Use local Qdrant/Ollama for local provider integration tests and local fakes/mocks for Azure adapter tests; the test suite must not require live Azure services. Azure adapter names in examples below describe planned implementations, not existing classes.
+The repository currently implements the local Ollama and Qdrant adapters and configuration-based DI selection for those providers only. Azure adapters, Service Bus publishers/consumers, and service hosts are not implemented yet. This guide's service and Azure provider code is illustrative target guidance, not current repository code; Azure adapter names in examples describe planned implementations, not existing classes.
+
+Run tests locally only. Use local Qdrant/Ollama for local provider integration tests and local fakes/mocks for Azure adapter tests; the test suite must not require live Azure services.
 
 ## Part 1: Shared Interfaces and Models
 
@@ -573,7 +575,7 @@ builder.Services.AddScoped<IVectorIndexBuildService, VectorIndexBuildService>();
 builder.Services.AddScoped<IVectorStore, AzureAiSearchVectorStore>();
 builder.Services.AddScoped<IVectorIndexWriter, AzureAiSearchVectorStore>();
 builder.Services.AddScoped<IEmbeddingService, AzureOpenAiEmbeddingClient>();
-builder.Services.AddScoped<IAIModelClientService, AzureOpenAiChatClient>();
+builder.Services.AddScoped<IChatCompletionService, AzureOpenAiChatClient>();
 
 // Hosted service for processing messages
 builder.Services.AddSingleton(sp =>

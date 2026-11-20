@@ -10,9 +10,13 @@ The backend is a layered .NET application:
 - `DrugExplorer.Persistence` owns EF Core and SQL Server access.
 - `DrugExplorer.Infrastructure` integrates with OpenFDA and currently contains the local AI and vector-store adapters.
 
-The existing application interfaces (`IEmbeddingService`, `IAIModelClientService`, `IVectorStore`, and `IVectorIndexWriter`) are provider boundaries. Qdrant and Ollama are for local development and local testing only; they are not Azure deployment targets.
+The existing backend uses application interfaces such as `IEmbeddingService`, `IAIModelClientService`, `IVectorStore`, and `IVectorIndexWriter` as provider boundaries. In this microservices repository, the provider abstractions are `IEmbeddingService`, `IChatCompletionService`, `IVectorStore`, and `IVectorIndexWriter`. Qdrant and Ollama are for local development and local testing only; they are not Azure deployment targets.
 
 The main capabilities are drug search and ingestion, semantic search, RAG answers, vector-index building, medicament seeding, and analytics. The current API is `DrugsController`; it exposes search, semantic search, custom-question, seed-medicaments, and build-vector-index endpoints.
+
+### Current repository implementation
+
+The new repository currently contains versioned `BuildIndexRequested` and `DrugIngested` contracts, provider-neutral abstractions, local Ollama embedding/chat adapters, and local Qdrant indexing/search adapters. `DrugExplorer.Providers.DependencyInjection` reads `Providers:VectorStore` and `Providers:Ai` and currently registers only `Qdrant` and `Ollama`. Service hosts, Azure provider adapters, and Azure Service Bus publishers/consumers are not implemented yet.
 
 ## 2. Target architecture
 
@@ -44,9 +48,9 @@ Do not create a separate deployment for every class or endpoint by default. Keep
 | Local development | Ollama | Qdrant | Run unit and integration tests locally against local dependencies |
 | Azure deployment | Azure OpenAI Service | Azure AI Search | Keep tests local; do not require live Azure services |
 
-Implement adapters for both provider sets behind the existing application interfaces. Select them through environment-specific dependency injection and configuration; do not make Application or Domain depend on provider SDK types. Preserve vector payload, identifier, and retrieval contracts where supported, and explicitly map provider-specific scoring and filtering behavior.
+Keep both provider sets behind the microservices repository's provider-neutral abstractions. The current dependency-injection registration supports `Providers:VectorStore=Qdrant` and `Providers:Ai=Ollama`; selecting Azure providers fails explicitly until their adapters are implemented. Add the Azure adapters and registrations later without making Application or Domain depend on provider SDK types. Preserve vector payload, identifier, and retrieval contracts where supported, and explicitly map provider-specific scoring and filtering behavior.
 
-The Azure adapters are target work, not capabilities currently implemented by this backend. Keep Azure endpoints, deployment/model identifiers, API versions, and credentials in configuration or managed identity; do not reuse local Ollama/Qdrant settings for Azure.
+The Azure adapters are target work, not capabilities currently implemented in this repository. Keep Azure endpoints, deployment/model identifiers, API versions, and credentials in configuration or managed identity; do not reuse local Ollama/Qdrant settings for Azure.
 
 ## 5. Azure Service Bus design
 

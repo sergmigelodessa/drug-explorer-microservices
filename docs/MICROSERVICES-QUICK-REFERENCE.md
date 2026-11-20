@@ -26,6 +26,13 @@ Extract services incrementally. Avoid shared table access and do not split compo
 
 Keep both provider sets behind application interfaces. Qdrant and Ollama are local-only; do not deploy them to Azure. Keep tests local and do not require live Azure services.
 
+## Current implementation status
+
+- Implemented: versioned `BuildIndexRequested` and `DrugIngested` contracts; provider abstractions; Ollama embedding/chat adapters; Qdrant index writing, counting, and search.
+- Implemented: configuration-based DI selection through `Providers:VectorStore` and `Providers:Ai`, currently supporting only `Qdrant` and `Ollama`.
+- Not implemented yet: service hosts, Azure AI Search/Azure OpenAI adapters, and Azure Service Bus publishers/consumers.
+- The full solution can be tested locally with `dotnet test .\DrugExplorer.Microservices.sln --no-restore`.
+
 ## Azure Service Bus
 
 - Use queues for competing workers and topics with subscriptions when several consumers need the same event.

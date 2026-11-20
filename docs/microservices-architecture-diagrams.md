@@ -6,7 +6,7 @@
 flowchart LR
     App[Application services]
     Embed[IEmbeddingService]
-    Chat[IAIModelClientService]
+    Chat[IChatCompletionService]
     Vector[IVectorStore / IVectorIndexWriter]
     App --> Embed
     App --> Chat
@@ -29,7 +29,7 @@ flowchart LR
     Vector -. Azure adapter .-> Search
 ```
 
-Qdrant and Ollama are local-only providers. Azure deployments use Azure AI Search and Azure OpenAI Service. Provider adapters are selected through environment-specific dependency injection; application interfaces remain provider-neutral.
+Qdrant and Ollama are local-only providers. Azure deployments will use Azure AI Search and Azure OpenAI Service. The current repository's dependency-injection registration selects Qdrant and Ollama from configuration; Azure provider adapters and registrations are planned. Application interfaces remain provider-neutral.
 
 ## 2. Target service and messaging view
 
@@ -107,4 +107,4 @@ Extract catalog/search, semantic search, and RAG as justified
 Shift Azure runtime to Azure providers; retain local providers for development
 ```
 
-The Azure adapters are planned work and are not represented as currently implemented. Test suites remain local and should use local dependencies or test doubles rather than deployed Azure services.
+The Azure adapters and Azure Service Bus services are planned work and are not represented as currently implemented. Test suites remain local and should use local dependencies or test doubles rather than deployed Azure services.
